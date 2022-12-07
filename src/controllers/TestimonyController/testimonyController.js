@@ -1,15 +1,15 @@
 const joi = require('joi');
 const _ = require('lodash');
 const moment = require('moment');
-const { Gallery } = require('../../../models');
-const PATH_FILE = 'http://localhost:5000/uploads/';
+const { Testimony, Siswa } = require('../../../models');
 const exclude = ["createdAt", "updatedAt"];
 
-exports.addGallery = async (req, res) => {
+exports.createTestimony = async (req, res) => {
   try {
     const data = req.body;
     const scheme = joi.object({
-      title: joi.string().min(5).required(),
+      nama: joi.string().min(3).required(),
+      message: joi.string().min(5).required(),
     });
     const { error } = scheme.validate(data);
     if (error) {
@@ -19,14 +19,14 @@ exports.addGallery = async (req, res) => {
       });
     };
     const timestamp = moment().format('MMMM Do YYYY');
-    await Gallery.create({
+    await Testimony.create({
       ...data,
+      id_siswa: req.userData.id,
       timestamp,
-      image: PATH_FILE + req.file.filename
     });
     return res.status(200).send({
       status: 'Success',
-      message: 'Gallery Uploaded'
+      message: 'Testimony Sent'
     });
   } catch (error) {
     return res.status(500).send({
@@ -36,17 +36,17 @@ exports.addGallery = async (req, res) => {
   }
 }
 
-exports.getAllGallery = async (req, res) => {
+exports.getAllTestimony = async (req, res) => {
   try {
-    const galleries = await Gallery.findAll({
+    const testimonies = await Testimony.findAll({
       attributes: {
         exclude
-      }
+      },
     });
     return res.status(200).send({
       status: 'Success',
       data: {
-        galleries
+        testimonies
       },
     })
   } catch (error) {
@@ -57,27 +57,27 @@ exports.getAllGallery = async (req, res) => {
   }
 }
 
-exports.getGalleryById = async (req, res) => {
+exports.getTestimonyById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const checkGallery = await Gallery.findOne({
+    const checkTestimony = await Testimony.findOne({
       where: {
         id
       }
     })
 
-    if (!checkGallery) {
+    if (!checkTestimony) {
       return res.status(404).send({
         status: 'Error',
-        message: 'Gallery Not Found',
+        message: 'Testimony Not Found',
       })
     }
 
     return res.status(200).send({
       status: 'Success',
       data: {
-        gallery: checkGallery
+        testimony: checkTestimony
       },
     })
   } catch (error) {
@@ -88,22 +88,23 @@ exports.getGalleryById = async (req, res) => {
   }
 }
 
-exports.removeGallery = async (req, res) => {
+exports.removeTestimony = async (req, res) => {
   try {
     const { id } = req.params;
-    const userExisted = await Gallery.findOne({
+    const testimonyExisted = await Testimony.findOne({
       where: {
         id,
       }
     });
 
-    if (!userExisted) {
+    if (!testimonyExisted) {
       return res.status(404).send({
         status: 'Error',
-        message: 'Gallery Not Found',
+        message: 'Testimony Not Found',
       });
     }
-    await Gallery.destroy({
+
+    await Testimony.destroy({
       where: {
         id,
       }
@@ -111,7 +112,7 @@ exports.removeGallery = async (req, res) => {
 
     return res.status(200).send({
       status: 'Success',
-      message: 'Gallery Deleted'
+      message: 'Testimony Deleted'
     })
 
   } catch (error) {

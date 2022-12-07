@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
         },
       });
       Siswa.hasMany(models.Certificate, {
-        as: 'userCertificate',
+        as: 'studentData',
         foreignKey: {
           name: 'id_siswa',
         },

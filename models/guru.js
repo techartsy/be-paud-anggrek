@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
         },
       });
       Guru.hasMany(models.Certificate, {
-        as: 'teacherCertificate',
+        as: 'teacherData',
         foreignKey: {
           name: 'id_guru',
         },

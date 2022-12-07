@@ -42,7 +42,8 @@ exports.registerTeacher = async (req, res) => {
       ...data,
       image: PATH_FILE + req.file.filename
     });
-    const token = generateToken(teacherData);
+    const newData = _.extend(teacherData, { role: 3 })
+    const token = generateToken(newData);
     return res.status(201).send({
       message: 'Success',
       token
@@ -175,6 +176,40 @@ exports.uploadCertificate = async (req, res) => {
     res.status(500).send({
       status: 'Failed',
       message: 'Internal Server Error'
+    });
+  }
+}
+
+exports.removeTeacher = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userExisted = await Guru.findOne({
+      where: {
+        id,
+      }
+    });
+
+    if (!userExisted) {
+      return res.status(404).send({
+        status: 'Error',
+        message: 'Teacher Not Found',
+      });
+    }
+    await Guru.destroy({
+      where: {
+        id,
+      }
+    });
+
+    return res.status(200).send({
+      status: 'Success',
+      message: 'Teacher Deleted'
+    })
+
+  } catch (error) {
+    res.status(500).send({
+      status: 'Error',
+      message: 'Internal Server Error',
     });
   }
 }

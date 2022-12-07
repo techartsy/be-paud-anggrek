@@ -1,15 +1,17 @@
 const joi = require('joi');
 const _ = require('lodash');
 const moment = require('moment');
-const { Gallery } = require('../../../models');
+const { Article } = require('../../../models');
 const PATH_FILE = 'http://localhost:5000/uploads/';
 const exclude = ["createdAt", "updatedAt"];
 
-exports.addGallery = async (req, res) => {
+exports.addArticle = async (req, res) => {
   try {
     const data = req.body;
     const scheme = joi.object({
       title: joi.string().min(5).required(),
+      description: joi.string().min(5).required(),
+      category: joi.string().min(5).required(),
     });
     const { error } = scheme.validate(data);
     if (error) {
@@ -19,14 +21,14 @@ exports.addGallery = async (req, res) => {
       });
     };
     const timestamp = moment().format('MMMM Do YYYY');
-    await Gallery.create({
+    await Article.create({
       ...data,
       timestamp,
       image: PATH_FILE + req.file.filename
     });
     return res.status(200).send({
       status: 'Success',
-      message: 'Gallery Uploaded'
+      message: 'Article Uploaded'
     });
   } catch (error) {
     return res.status(500).send({
@@ -36,9 +38,9 @@ exports.addGallery = async (req, res) => {
   }
 }
 
-exports.getAllGallery = async (req, res) => {
+exports.getAllArticle = async (req, res) => {
   try {
-    const galleries = await Gallery.findAll({
+    const articles = await Article.findAll({
       attributes: {
         exclude
       }
@@ -46,7 +48,7 @@ exports.getAllGallery = async (req, res) => {
     return res.status(200).send({
       status: 'Success',
       data: {
-        galleries
+        articles
       },
     })
   } catch (error) {
@@ -57,27 +59,27 @@ exports.getAllGallery = async (req, res) => {
   }
 }
 
-exports.getGalleryById = async (req, res) => {
+exports.getArticleById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const checkGallery = await Gallery.findOne({
+    const checkArticle = await Article.findOne({
       where: {
         id
       }
     })
 
-    if (!checkGallery) {
+    if (!checkArticle) {
       return res.status(404).send({
         status: 'Error',
-        message: 'Gallery Not Found',
+        message: 'Article Not Found',
       })
     }
 
     return res.status(200).send({
       status: 'Success',
       data: {
-        gallery: checkGallery
+        article: checkArticle
       },
     })
   } catch (error) {
@@ -88,22 +90,22 @@ exports.getGalleryById = async (req, res) => {
   }
 }
 
-exports.removeGallery = async (req, res) => {
+exports.removeArticle = async (req, res) => {
   try {
     const { id } = req.params;
-    const userExisted = await Gallery.findOne({
+    const articleExisted = await Article.findOne({
       where: {
         id,
       }
     });
 
-    if (!userExisted) {
+    if (!articleExisted) {
       return res.status(404).send({
         status: 'Error',
-        message: 'Gallery Not Found',
+        message: 'Article Not Found',
       });
     }
-    await Gallery.destroy({
+    await Article.destroy({
       where: {
         id,
       }
@@ -111,7 +113,7 @@ exports.removeGallery = async (req, res) => {
 
     return res.status(200).send({
       status: 'Success',
-      message: 'Gallery Deleted'
+      message: 'Article Deleted'
     })
 
   } catch (error) {

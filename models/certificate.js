@@ -12,13 +12,13 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       Certificate.belongsTo(models.Siswa, {
-        as: 'userCertificate',
+        as: 'studentData',
         foreignKey: {
           name: 'id_siswa',
         },
       });
       Certificate.belongsTo(models.Guru, {
-        as: 'teacherCertificate',
+        as: 'teacherData',
         foreignKey: {
           name: 'id_guru',
         },
