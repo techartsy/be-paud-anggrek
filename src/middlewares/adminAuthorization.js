@@ -21,15 +21,15 @@ const adminAuthorization = async (req, res, next) => {
         id,
       },
     });
-    if (!adminData) {
-      return res.status(404).send({
-        status: 'Error',
-        message: 'User Unregistered'
-      });
-    } else if (decoded.role !== 1) {
+    if (decoded.role !== 1) {
       return res.status(403).send({
         status: 'Error',
         message: 'Forbidden Access'
+      });
+    } else if (!adminData) {
+      return res.status(404).send({
+        status: 'Error',
+        message: 'User Unregistered'
       });
     } else {
       next();

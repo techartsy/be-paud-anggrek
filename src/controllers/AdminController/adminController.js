@@ -35,7 +35,8 @@ exports.createAdmin = async (req, res) => {
     }
 
     const dataAdmin = await Admin.create(data);
-    const token = generateToken(dataAdmin);
+    const newData = _.extend(dataAdmin, { role: 1 })
+    const token = generateToken(newData);
     return res.status(201).send({
       message: 'Success',
       token
@@ -70,3 +71,37 @@ exports.login = async (req, res) => {
     });
   };
 };
+
+exports.removeAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userExisted = await Admin.findOne({
+      where: {
+        id,
+      }
+    });
+
+    if (!userExisted) {
+      return res.status(404).send({
+        status: 'Error',
+        message: 'Admin Not Found',
+      });
+    }
+    await Admin.destroy({
+      where: {
+        id,
+      }
+    });
+
+    return res.status(200).send({
+      status: 'Success',
+      message: 'Admin Deleted'
+    })
+
+  } catch (error) {
+    res.status(500).send({
+      status: 'Error',
+      message: 'Internal Server Error',
+    });
+  }
+}

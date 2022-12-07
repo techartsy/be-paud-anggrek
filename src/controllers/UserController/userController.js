@@ -40,7 +40,8 @@ exports.registerStudent = async (req, res) => {
 
     data.nomor_pendaftaran = moment().format('x');
     const dataStudent = await Siswa.create(data);
-    const token = generateToken(dataStudent);
+    const newData = _.extend(dataStudent, { role: 2 })
+    const token = generateToken(newData);
     return res.status(201).send({
       message: 'Success',
       token
@@ -164,3 +165,37 @@ exports.getStudentById = async (req, res) => {
     });
   };
 };
+
+exports.removeStudent = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userExisted = await Siswa.findOne({
+      where: {
+        id,
+      }
+    });
+
+    if (!userExisted) {
+      return res.status(404).send({
+        status: 'Error',
+        message: 'Student Not Found',
+      });
+    }
+    await Siswa.destroy({
+      where: {
+        id,
+      }
+    });
+
+    return res.status(200).send({
+      status: 'Success',
+      message: 'Student Deleted'
+    })
+
+  } catch (error) {
+    res.status(500).send({
+      status: 'Error',
+      message: 'Internal Server Error',
+    });
+  }
+}
