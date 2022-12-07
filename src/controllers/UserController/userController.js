@@ -93,7 +93,7 @@ exports.getStudents = async (req, res) => {
         },
         {
           model: Certificate,
-          as: 'userCertificate',
+          as: 'userData',
           attributes: {
             exclude
           }
@@ -136,7 +136,7 @@ exports.getStudentById = async (req, res) => {
         },
         {
           model: Certificate,
-          as: 'userCertificate',
+          as: 'userData',
           attributes: {
             exclude
           }
