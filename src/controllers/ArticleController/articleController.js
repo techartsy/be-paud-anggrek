@@ -40,17 +40,57 @@ exports.addArticle = async (req, res) => {
 
 exports.getAllArticle = async (req, res) => {
   try {
-    const articles = await Article.findAll({
-      attributes: {
-        exclude
+    const { query } = req;
+    if (!_.isEmpty(query)) {
+      if (query.category.toLowerCase() === 'kegiatan') {
+        const articles = await Article.findAll({
+          attributes: {
+            exclude
+          },
+          where: {
+            category: 'kegiatan'
+          }
+        });
+        return res.status(200).send({
+          status: 'Success',
+          data: {
+            articles
+          },
+        })
+      } else if (query.category.toLowerCase() === 'prestasi') {
+        const articles = await Article.findAll({
+          attributes: {
+            exclude
+          },
+          where: {
+            category: 'prestasi'
+          }
+        });
+        return res.status(200).send({
+          status: 'Success',
+          data: {
+            articles
+          },
+        }) 
+      } else {
+        return res.status(400).send({
+          status: 'Error',
+          message: 'Bad Request'
+        })
       }
-    });
-    return res.status(200).send({
-      status: 'Success',
-      data: {
-        articles
-      },
-    })
+    } else {
+      const articles = await Article.findAll({
+        attributes: {
+          exclude
+        }
+      });
+      return res.status(200).send({
+        status: 'Success',
+        data: {
+          articles
+        },
+      })
+    }
   } catch (error) {
     return res.status(500).send({
       status: "Error",
