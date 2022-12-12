@@ -13,7 +13,6 @@ const adminAuthorization = async (req, res, next) => {
     const header = req.headers.authorization;
     const token = header.replace("Bearer ", "");
     const decoded = verifyToken(token);
-    console.log(decoded, '<<<<<<<< decoded');
     const { id } = decoded;
 
     const adminData = await Admin.findOne({

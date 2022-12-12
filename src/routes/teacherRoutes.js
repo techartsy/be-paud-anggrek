@@ -1,5 +1,5 @@
 const express = require('express');
-const { registerTeacher, login, getTeacherById, getTeachers, uploadCertificate, removeTeacher } = require('../controllers/TeacherController/teacherController');
+const { registerTeacher, login, getTeacherById, getTeachers, uploadCertificate, removeTeacher, getTeacherProfile } = require('../controllers/TeacherController/teacherController');
 const { uploadFile } = require('../middlewares/uploadFile');
 const authentication = require('../middlewares/authentication');
 const adminAuthorization = require('../middlewares/adminAuthorization');
@@ -10,6 +10,7 @@ router.post('/login', login);
 router.get('/', getTeachers);
 
 router.use(authentication);
+router.get('/get-profile', getTeacherProfile);
 router.get('/:id', getTeacherById);
 router.post('/upload-certificate/:id', uploadFile('file'), uploadCertificate)
 
