@@ -111,6 +111,37 @@ exports.getTeacherById = async (req, res) => {
   };
 };
 
+exports.getTeacherProfile = async (req, res) => {
+  try {
+    const { id } = req.userData;
+    let teacher = await Guru.findOne({
+      where: {
+        id: id
+      },
+      attributes: {
+        exclude
+      },
+    });
+    if (!teacher) {
+      return res.status(404).send({
+        status: 'Failed',
+        message: 'Teacher not Found'
+      });
+    };
+    res.status(200).send({
+      status: 'Success',
+      data: {
+        teacher
+      },
+    });
+  } catch (error) {
+    res.status(500).send({
+      status: 'Failed',
+      message: 'Internal Server Error'
+    });
+  };
+};
+
 exports.getTeachers = async (req, res) => {
   try {
     let teachers = await Guru.findAll({

@@ -5,6 +5,7 @@ const { Siswa, Pembayaran, Certificate } = require('../../../models');
 const { generateToken } = require('../../utils/jwt');
 const { comparePass } = require('../../utils/brcypt');
 const exclude = ["password", "createdAt", "updatedAt"];
+const PATH_FILE = 'http://localhost:5000/uploads/';
 
 exports.registerStudent = async (req, res) => {
   try {
@@ -93,7 +94,7 @@ exports.getStudents = async (req, res) => {
         },
         {
           model: Certificate,
-          as: 'userData',
+          as: 'studentData',
           attributes: {
             exclude
           }
@@ -101,7 +102,7 @@ exports.getStudents = async (req, res) => {
       ]
     });
 
-    res.status(200).send({
+    return res.status(200).send({
       status: 'Success',
       data: {
         students
@@ -109,7 +110,7 @@ exports.getStudents = async (req, res) => {
     });
 
   } catch (error) {
-    res.status(500).send({
+    return res.status(500).send({
       status: 'Failed',
       message: 'Internal Server Error'
     });
@@ -136,7 +137,7 @@ exports.getStudentById = async (req, res) => {
         },
         {
           model: Certificate,
-          as: 'userData',
+          as: 'studentData',
           attributes: {
             exclude
           }
@@ -150,7 +151,7 @@ exports.getStudentById = async (req, res) => {
         message: `Student ${id} not Found`,
       });
     };
-    res.status(200).send({
+    return res.status(200).send({
       status: 'Success',
       message: `Stuent ${id} Successfully Get`,
       data: {
@@ -159,7 +160,57 @@ exports.getStudentById = async (req, res) => {
     });
 
   } catch (error) {
-    res.status(500).send({
+    return res.status(500).send({
+      status: 'Failed',
+      message: 'Internal Server Error'
+    });
+  };
+};
+
+exports.getProfile = async (req, res) => {
+  try {
+    const { id } = req.userData;
+    const checkId = await Siswa.findOne({
+      where: {
+        id,
+      },
+      attributes: {
+        exclude,
+      },
+      include: [
+        {
+          model: Pembayaran,
+          as: 'userPayment',
+          attributes: {
+            exclude
+          },
+        },
+        {
+          model: Certificate,
+          as: 'studentData',
+          attributes: {
+            exclude
+          }
+        }
+      ]
+    });
+
+    if (!checkId) {
+      return res.status(404).send({
+        status: 'Failed',
+        message: `Student ${id} not Found`,
+      });
+    };
+    return res.status(200).send({
+      status: 'Success',
+      message: `Stuent ${id} Successfully Get`,
+      data: {
+        student: checkId,
+      },
+    });
+
+  } catch (error) {
+    return res.status(500).send({
       status: 'Failed',
       message: 'Internal Server Error'
     });
@@ -193,9 +244,94 @@ exports.removeStudent = async (req, res) => {
     })
 
   } catch (error) {
-    res.status(500).send({
+    return res.status(500).send({
       status: 'Error',
       message: 'Internal Server Error',
+    });
+  }
+}
+
+exports.uploadDocs = async (req, res) => {
+  try {
+    const { id } = req.userData;
+    const checkStudent = await Siswa.findOne({
+      where: {
+        id,
+      }
+    })
+    if (!checkStudent) {
+      return res.status(404).send({
+        status: 'Failed',
+        message: 'User Not Found'
+      })
+    }
+
+    let docs;
+    if (req.files) {
+      for (const item of req.files) {
+        docs = {
+          ...docs,
+          [item.fieldname]: PATH_FILE + item.filename,
+        };
+      }
+    }
+    const updatedStudent = await Siswa.update(docs, {
+      where: {
+        id
+      }
+    })
+
+    if (!_.isEmpty(updatedStudent)) {
+      const invoiceData = {
+        id_siswa: id,
+        kode_pembayaran: checkStudent.nomor_pendaftaran,
+        status: 'pending'
+      }
+      await Pembayaran.create(invoiceData);
+    }
+
+    return res.status(200).send({
+      status: 'Success',
+      message: 'Document Uploaded',
+      data: {
+        kode_pembayaran: checkStudent.nomor_pendaftaran,
+      }
+    })
+  } catch (error) {
+    return res.status(500).send({
+      status: 'Failed',
+      message: 'Internal Server Error'
+    });
+  }
+}
+
+exports.profileFulfillment = async (req, res) => {
+  try {
+    const { id } = req.userData;
+    let dataUpdate = {
+      ...req.body,
+    };
+
+    if (req.file) {
+      dataUpdate = {
+        ...dataUpdate,
+        foto_murid: PATH_FILE + req.file.filename,
+      }
+    }
+
+    await Siswa.update(dataUpdate, {
+      where: {
+        id
+      }
+    })
+    return res.status(200).send({
+      status: 'Success',
+      message: 'Data Updated'
+    })
+  } catch (error) {
+    return res.status(500).send({
+      status: 'Failed',
+      message: 'Internal Server Error'
     });
   }
 }

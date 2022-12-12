@@ -1,6 +1,6 @@
 const multer = require('multer');
 
-exports.uploadFile = (imageFile) => {
+exports.uploadFile = (imageFile, categoryFile) => {
   const storage = multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, 'uploads');
@@ -25,13 +25,25 @@ exports.uploadFile = (imageFile) => {
   const sizeInMB = 10;
   const maxSize = sizeInMB * 1000 * 1000;
 
-  const upload = multer({
-    storage,
-    fileFilter,
-    limits: {
-      fileSize: maxSize,
-    },
-  }).single(imageFile);
+  let upload;
+
+  if (categoryFile === 'docs') {
+    upload = multer({
+      storage,
+      fileFilter,
+      limits: {
+        fileSize: maxSize,
+      },
+    }).any(imageFile);
+  } else {
+    upload = multer({
+      storage,
+      fileFilter,
+      limits: {
+        fileSize: maxSize,
+      },
+    }).single(imageFile);
+  }
 
   return (req, res, next) => {
     upload(req, res, function (err) {
@@ -39,11 +51,11 @@ exports.uploadFile = (imageFile) => {
         return res.status(400).send(req.fileValidationError);
       };
 
-      if (!req.file && !err) {
-        return res.status(400).send({
-          message: 'Please Select Files to Upload',
-        });
-      };
+      // if (!req.file && !err) {
+      //   return res.status(400).send({
+      //     message: 'Please Select Files to Upload',
+      //   });
+      // };
 
       if (err) {
         if (err.code === 'LIMIT_FILE_SIZE') {
