@@ -1,8 +1,6 @@
 const joi = require('joi');
 const _ = require('lodash');
-const moment = require('moment');
 const { Penilaian, Guru, Siswa } = require('../../../models');
-const PATH_FILE = 'http://localhost:5000/uploads/';
 const exclude = ["createdAt", "updatedAt"];
 const teacherExclude = [ "no_telpon", "email", "password", "createdAt", "updatedAt"];
 const studentExclude = [
