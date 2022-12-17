@@ -233,6 +233,35 @@ exports.removeStudent = async (req, res) => {
         message: 'Student Not Found',
       });
     }
+
+    const paymentExisted = await Pembayaran.findOne({
+      where: {
+        id_siswa: id
+      }
+    })
+
+    if (paymentExisted) {
+      await Pembayaran.destroy({
+        where: {
+          id_siswa: id
+        }
+      })
+    }
+
+    const certificateExisted = await Certificate.findOne({
+      where: {
+        id_siswa: id
+      }
+    })
+
+    if (certificateExisted) {
+      await Certificate.destroy({
+        where: {
+          id_siswa: id
+        }
+      })
+    }
+
     await Siswa.destroy({
       where: {
         id,
