@@ -39,7 +39,8 @@ exports.createAdmin = async (req, res) => {
     const token = generateToken(newData);
     return res.status(201).send({
       message: 'Success',
-      token
+      token,
+      role: 1
     });
   } catch (error) {
     return res.status(500).send({
@@ -61,7 +62,7 @@ exports.login = async (req, res) => {
       } else {
         const newData = _.extend(admin, { role: 1 })
         const access_token = generateToken(newData);
-        return res.status(200).json({ access_token });
+        return res.status(200).json({ access_token, role: 1 });
       }
     });
   } catch (err) {

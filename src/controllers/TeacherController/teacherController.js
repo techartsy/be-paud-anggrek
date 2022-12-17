@@ -46,7 +46,8 @@ exports.registerTeacher = async (req, res) => {
     const token = generateToken(newData);
     return res.status(201).send({
       message: 'Success',
-      token
+      token,
+      role: 3
     });
   } catch (error) {
     return res.status(500).send({
@@ -68,7 +69,7 @@ exports.login = async (req, res) => {
       } else {
         const newData = _.extend(teacher, { role: 3 })
         const access_token = generateToken(newData);
-        return res.status(200).json({ access_token });
+        return res.status(200).json({ access_token, role: 3 });
       }
     });
   } catch (err) {
