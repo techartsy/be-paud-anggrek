@@ -42,10 +42,10 @@ exports.registerStudent = async (req, res) => {
     data.nomor_pendaftaran = moment().format('x');
     const dataStudent = await Siswa.create(data);
     const newData = _.extend(dataStudent, { role: 2 })
-    const token = generateToken(newData);
+    const access_token = generateToken(newData);
     return res.status(201).send({
       message: 'Success',
-      token,
+      access_token,
       role: 2,
     });
   } catch (error) {

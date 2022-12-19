@@ -43,10 +43,10 @@ exports.registerTeacher = async (req, res) => {
       image: PATH_FILE + req.file.filename
     });
     const newData = _.extend(teacherData, { role: 3 })
-    const token = generateToken(newData);
+    const access_token = generateToken(newData);
     return res.status(201).send({
       message: 'Success',
-      token,
+      access_token,
       role: 3
     });
   } catch (error) {
