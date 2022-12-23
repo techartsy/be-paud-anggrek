@@ -173,7 +173,7 @@ exports.paymentFulfillment = async (req, res) => {
     const { id } = req.userData;
     const data = req.body;
     const scheme = joi.object({
-      nama_bank: joi.string().required(),
+      nama_bank: joi.string().optional(),
       nama_pengirim: joi.string().required(),
       metode_pembayaran: joi.string().required(),
       kode_pembayaran: joi.string().required(),
@@ -206,10 +206,18 @@ exports.paymentFulfillment = async (req, res) => {
       })
     }
 
-    const updatedData = {
-      ...data,
-      status: 'waiting approval',
-      pembayaran_pertama: PATH_FILE + req.file.filename
+    let updatedData;
+    if (req.file) {
+      updatedData = {
+        ...data,
+        status: 'waiting approval',
+        pembayaran_pertama: PATH_FILE + req.file.filename
+      }
+    } else {
+      updatedData = {
+        ...data,
+        status: 'waiting approval',
+      }
     }
 
     const updatedPayment = await Pembayaran.update(updatedData, {
